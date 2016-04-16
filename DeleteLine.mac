@@ -1,0 +1,11 @@
+// Delete line.[2016-04-16]
+// emacs compatible delete line macro.
+
+if( x == 0 ){
+	deleteline;
+}else if( code == 0x0D ){
+	delete;
+}else{
+	deleteafter;
+}
+endmacro;
