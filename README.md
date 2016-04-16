@@ -1,0 +1,2 @@
+# Hmacro
+Hidemaru macro
