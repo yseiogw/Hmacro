@@ -82,3 +82,70 @@ Function GetFileList(ByVal argDir As String) As String()
   
   GetFileList = aryFile
 End Function
+-------- 全シートのカーソルをA1に移動するマクロ --
+Sub A1move()
+    Dim sht                     As Worksheet            '// 処理中のワークシート
+    Dim shtVisible                                      '// 表示可能なワークシート
+    Dim iRow, iCol                                      '// 縦、横座標
+    Dim sHiddenSheet                                    '// 非表示シート名
+    Dim oFilterStatus           As AutoFilter           '// オートフィルタ状態
+    Dim oRangeFilter            As Range                '// オートフィルタ設定
+
+    For Each sht In Worksheets
+        If (IsEmpty(shtVisible) = True) And (sht.Visible = xlSheetVisible) Then
+            Set shtVisible = sht
+        End If
+
+        '// シートが表示されている場合
+        If sht.Visible = xlSheetVisible Then
+            Call A1(sht)
+        '// シートが非表示の場合
+        Else
+            sHiddenSheet = sHiddenSheet & "、" & sht.Name
+            sht.Visible = xlSheetVisible
+            Call A1(sht)
+            sht.Visible = xlSheetHidden
+        End If
+    Next
+
+    shtVisible.Select
+
+    If (sHiddenSheet <> "") Then
+        MsgBox sHiddenSheet, vbOKOnly, "非表示シートあり"
+    End If
+End Sub
+
+Sub A1(ByVal sht As Worksheet)
+        sht.Select
+
+        '// ウインドウ枠の固定がされている場合
+        If ActiveWindow.FreezePanes = True Then
+            iRow = ActiveWindow.SplitRow + 1
+            iCol = ActiveWindow.SplitColumn + 1
+            Cells(iRow + 1, iCol + 1).Activate
+        End If
+
+        Set oFilterStatus = sht.AutoFilter
+        '// オートフィルタが設定されている場合
+        If Not oFilterStatus Is Nothing Then
+            '// フィルタが掛かっている場合
+            If oFilterStatus.FilterMode = True Then
+                '// フィルタが掛かっている行の先頭を選択
+                Set oRangeFilter = Range("A1").CurrentRegion
+                Set oRangeFilter = Application.Intersect(oRangeFilter, oRangeFilter.Offset(1, 0))
+                Set oRangeFilter = oRangeFilter.SpecialCells(xlCellTypeVisible)
+                Range("A" & CStr(oRangeFilter.Row)).Select
+            End If
+        End If
+
+        sht.Range("A1").Select
+        ActiveWindow.Zoom = 100
+
+        ActiveCell.Activate         ' Excel97対策
+        ' スクロール列の設定
+        ActiveWindow.ScrollColumn = 1
+        ' スクロール行の設定
+        ActiveWindow.ScrollRow = 1
+
+End Sub
+----------
