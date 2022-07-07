@@ -1,0 +1,91 @@
+// UNIX compatible changelog[2009-05-03]
+// by Project PaoPei 2004 Japan
+// This program shall be in the public domain.
+// refer.http://chalow.org/
+
+// User defined vars //
+// Set your mail address
+//$mead   ="<foo@hoge.com>";
+// Set your name other than Windows USERNAME, if you like.
+//$myname ="foo bar";
+//------------------//
+
+// Set name to USERNAME, if no name is specified above.
+$user =getenv("USERNAME");
+if ($myname=="") $myname = $user;
+// Set changelog path
+$path =getenv("HOME");
+if ($path=="") 
+{
+//	$filepath = "C:\\Documents and Settings\\" + $user + "\\changelog.txt";
+	$filepath = "D:\\Usr\\Home\\" + $user + "\\memo\\00memo.txt";
+}
+else 
+{
+//	$filepath = $path + "\\changelog.txt";
+	$filepath = $path + "\\memo\\00memo.txt";
+}
+
+// add at 2009/4/27
+//$filepath = "C:\\Documents and Settings\\foo\\My Documents\\My Dropbox\\ChangeLog.chlog";
+
+// Process starts
+// open changelog file
+
+// add START at 2009/4/27
+if (tolower(filename) != tolower($filepath)) {
+	#hidemaruHandler = findhidemaru($filepath);
+	if ( #hidemaruHandler == -1 ) {
+		openfile($filepath);
+	} else {
+		setactivehidemaru #hidemaruHandler;
+	}
+}
+// add END at 2009/4/27
+
+gofiletop;
+// add START at 2009/4/27
+//$today = year + "-" + month + "-" + day;
+$wdays[0] = "Sun";
+$wdays[1] = "Mon";
+$wdays[2] = "Tue";
+$wdays[3] = "Wed";
+$wdays[4] = "Thu";
+$wdays[5] = "Fri";
+$wdays[6] = "Sat";
+$today = year + "-" + month + "-" + day + " (" + $wdays[dayofweeknum] + ")";
+
+// add END at 2009/4/27
+$topLineDate = gettext(0,0,10,0);
+if ($topLineDate == $today) 
+{
+	#r = yes;
+}
+else 
+{
+	searchdown $today, word;
+	#r = result;
+}
+if (#r == 0) // if today's date is not found, insert date
+{
+	insert "\n" + $today + "  " + $myname + "  " + $mead + "\n";
+	$endlf="\n\n";
+// change by konnoy at 2009/04/27
+	#bs=14;
+}
+else
+{
+	down;
+	golinetop;
+	$endlf="\n";
+// change by konnoy at 2009/04/27
+	#bs=13;
+}
+// insert item format
+// change at 2009/04/27
+//$titleform = "\n\t* [" + time + "]: " + $endlf;
+$titleform = "\n\t\t* [" + time + "]: " + $endlf;
+insert $titleform;
+left(#bs);
+setfocus;  // add at 2009/04/29
+endmacro;
