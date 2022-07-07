@@ -1,0 +1,84 @@
+-------- Excel VBA：フォルダ内のファイルリストを作成｜サイズや日時も ------------
+Option Explicit
+
+'Excel VBAでフォルダ内のファイルリストを作成
+Private Sub ExGetFileList(strPath As String, lRow As Long)
+    Dim tSfo As Object
+    Dim tGf As Object
+    Dim tFi As Object
+    Dim tSub As Object
+    
+    Set tSfo = CreateObject("Scripting.FileSystemObject")
+    Set tGf = tSfo.GetFolder(strPath)
+    For Each tFi In tGf.Files
+        'ファイル名
+        Cells(lRow, 2) = tFi.Name
+        'パス内に含まれるファイルの拡張子を除いたものを取得
+        Cells(lRow, 3) = tSfo.GetBaseName(tFi.Path)
+        'ファイルの拡張子
+        Cells(lRow, 4) = tSfo.GetExtensionName(tFi.Path)
+        'フォルダ名
+        Cells(lRow, 5) = tFi.ParentFolder.Path
+        'ファイルサイズ KByte
+        Cells(lRow, 6) = Int(tFi.Size / 1024)
+        '作成された日付・時刻
+        Cells(lRow, 7) = tFi.DateCreated
+        'ファイルの最終更新された日付・時刻
+        Cells(lRow, 8) = tFi.DateLastModified
+        'ファイルの最終アクセスの日付・時刻
+        Cells(lRow, 9) = tFi.DateLastAccessed
+        lRow = lRow + 1
+    Next
+  
+    For Each tSub In tGf.SubFolders
+        ExGetFileList tSub.Path, lRow
+    Next
+End Sub
+
+Private Sub CommandButton1_Click()
+    ExGetFileList "e:\mydir", 4
+End Sub
+-------- Dir関数でサブフォルダも含むファイル一覧を取得するVBA ------------
+Function GetFileList(ByVal argDir As String) As String()
+  Dim i As Long
+  Dim aryDir() As String
+  Dim aryFile() As String
+  Dim strName As String
+
+  ReDim aryDir(i)
+  aryDir(i) = argDir '引数のフォルダを配列の先頭に入れる
+  
+  'まずは、指定フォルダ以下の全サブフォルダを取得し、配列aryDirに入れます。
+  i = 0
+  Do
+    strName = Dir(aryDir(i) & "\", vbDirectory)
+    Do While strName <> ""
+      If GetAttr(aryDir(i) & "\" & strName) And vbDirectory Then
+        If strName <> "." And strName <> ".." Then
+          ReDim Preserve aryDir(UBound(aryDir) + 1)
+          aryDir(UBound(aryDir)) = aryDir(i) & "\" & strName
+        End If
+      End If
+      strName = Dir()
+    Loop
+    i = i + 1
+    If i > UBound(aryDir) Then Exit Do
+  Loop
+  
+  '配列aryDirの全フォルダについて、ファイルを取得し、配列aryFileに入れます。
+  ReDim aryFile(0)
+  For i = 0 To UBound(aryDir)
+    strName = Dir(aryDir(i) & "\", vbNormal + vbHidden + vbReadOnly + vbSystem)
+    Do While strName <> ""
+      If aryFile(0) <> "" Then
+        ReDim Preserve aryFile(UBound(aryFile) + 1)
+      End If
+      aryFile(UBound(aryFile)) = aryDir(i) & "\" & strName
+      '実行結果が分かりやすいように、テスト的にセルに書き出す場合
+      'Cells(UBound(aryFile) + 1, 1) = aryFile(UBound(aryFile))
+      strName = Dir()
+    Loop
+  Next
+  
+  GetFileList = aryFile
+End Function
