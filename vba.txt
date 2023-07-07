@@ -301,4 +301,9 @@ UseCase仕様書
 事後条件	期待する結果
 特記事項	設計実装上の制約
 未決定事項、仮決定事項	異常系テストケースのバリエーション
+----
+新卒未経験エンジニアの後輩ができる先輩方に読んでほしい４つのこと - Qiita	https://qiita.com/_mi/items/9a9eb3307222376b5477
+質問は恥ではないし役に立つ	https://qiita.com/seki_uk/items/4001423b3cd3db0dada7
+技術系メーリングリストで質問するときのパターン・ランゲージ	https://www.hyuki.com/writing/techask.html
+新人、優秀すぎて草 - Qiita	https://qiita.com/ueaaoe/items/67c99b86ac8eecb98bbe
 
