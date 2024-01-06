@@ -306,4 +306,123 @@ UseCase仕様書
 質問は恥ではないし役に立つ	https://qiita.com/seki_uk/items/4001423b3cd3db0dada7
 技術系メーリングリストで質問するときのパターン・ランゲージ	https://www.hyuki.com/writing/techask.html
 新人、優秀すぎて草 - Qiita	https://qiita.com/ueaaoe/items/67c99b86ac8eecb98bbe
+----
+【VBA】ExcelVBAで実現するエビデンスツール
+https://qiita.com/Kit-i/items/e4c732c9e389dc6a860b
 
+Option Explicit
+'キャプチャ収集状態ならTrue
+Private isLogging As Boolean
+
+'キャプチャを貼り付けるブック名を保持する
+Private fileName As String
+
+'############################
+'#キャプチャ取得プロシージャ
+'############################
+Private Sub Capture()
+    On Error GoTo errorHandler
+ 
+ 'クリップボードに画像が格納されていたら貼り付ける
+    If Application.ClipboardFormats(1) = xlClipboardFormatBitmap Then
+       Dim rows As Integer: rows = 63 '行数
+    
+       'キャプチャを貼り付ける
+       Workbooks(fileName).Activate 'マクロ実行時にfileName変数にアクティブbookの名前をいれる。
+       
+       '選択しているセルを基準セルとして取得する
+       Dim baseCell As Variant
+       Set baseCell = Selection
+       
+       'クリップボードのデータを貼付け、行数に合わせて縮小する
+       baseCell.Offset(1, 1).Select
+       ActiveSheet.Paste
+       With Selection.ShapeRange
+           .LockAspectRatio = msoTrue
+           .Height = .Height * 0.7
+       End With
+       
+       '次の画像を貼るために基準セルを移動し、クリップボードに現在のセルの値をコピーする(クリップボードの中身をBitmapでなくすため)
+       With baseCell.Offset(rows + 1, 0)
+           .Select
+           .Copy
+       End With
+       
+       '切り取り・コピーモードを解除する
+       Application.CutCopyMode = False
+       
+       'Windows通知処理(外部PWスクリプトの実行)
+        Dim PWobj
+        Set PWobj = CreateObject("WScript.Shell")
+        PWobj.Run ("Powershell -ExecutionPolicy RemoteSigned -Command <通知用Powershellスクリプト>"), 0
+       
+    End If
+    
+    '1秒間隔で再実行するようにタイマーをセットする
+    Application.OnTime Now + TimeValue("00:00:01"), "Capture", , isLogging
+    
+    Exit Sub
+    
+errorHandler:
+    isLogging = False
+    
+End Sub
+
+'########################
+'#キャプチャを開始する
+'########################
+Sub StartCapture()
+    MsgBox "キャプチャの取得を開始します。終了時にはEscキーを押下してください。"
+    
+    'Escキーで停止できるようにしておく
+    Application.OnKey "{ESC}", "StopCapture"
+    
+    'キャプチャを貼り付けるブック名を取得する
+    fileName = ActiveWorkbook.Name
+    
+    'キャプチャ取得状態を設定する
+    isLogging = True
+    
+    'キャプチャ実行中であることを示すためシート見出しを赤く塗りつぶす
+    ActiveSheet.Tab.Color = RGB(255, 0, 0)
+    
+    'キャプチャの取得を開始する
+    Capture
+    
+End Sub
+
+'########################
+'#キャプチャを終了する
+'########################
+Sub StopCapture()
+    If isLogging = True Then
+    
+        'キャプチャの取得状態を解除する
+        isLogging = False
+        
+        'ESCキーへの登録を解除する
+        Application.OnKey "{ESC}", ""
+        
+        'シート見出しの色を戻す
+        ActiveSheet.Tab.Color = RGB(0, 0, 0)
+        
+        MsgBox "キャプチャの取得を停止しました。"
+        
+    End If
+    
+End Sub
+-----
+'トースト通知
+$bodyText = 'ペースト処理が完了しました'
+
+$ToastText01 = [Windows.UI.Notifications.ToastTemplateType, Windows.UI.Notifications, ContentType = WindowsRuntime]::ToastText01
+$TemplateContent = [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime]::GetTemplateContent($ToastText01)
+$TemplateContent.SelectSingleNode('//text[@id="1"]').InnerText = $bodyText
+$AppId = 'Microsoft.Office.EXCEL.EXE.15'
+[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId).Show($TemplateContent)
+----
+' Psスクリプトの実行
+Dim PWobj
+Set PWobj = CreateObject("WScript.Shell")
+PWobj.Run ("Powershell -ExecutionPolicy RemoteSigned -Command <Powershellスクリプト>, 0
+----
