@@ -426,3 +426,9 @@ Dim PWobj
 Set PWobj = CreateObject("WScript.Shell")
 PWobj.Run ("Powershell -ExecutionPolicy RemoteSigned -Command <Powershellスクリプト>, 0
 ----
+
+ファイルサーバ検索システムを作る	https://aenomoto.hatenadiary.org/entry/20091227/1261932844
+Internet archive	https://web.archive.org/web/20150417203113/https://hyperestraier.sourceforge.net/win/
+Hyper Estraierのインストール	https://ebstudio.info/manual/KWIC/0_5_1_6_3.html
+HyperEstraierを動かしてみる	https://qiita.com/ara-bot/items/ad413128d58ce9993c2c
+windowsでHyper Estraierを用いた全文検索システムの構築	https://jetlaghtb.hatenablog.jp/entry/2015/05/26/220432
